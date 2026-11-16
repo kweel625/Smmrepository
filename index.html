@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Attendance Scanner</title>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#14213D; --panel:#243556; --text:#F2F5FA; --ok:#1F9D55; --warn:#D99A1E; --bad:#C94444; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; height:100%; background:var(--bg); color:var(--text); font-family:"Atkinson Hyperlegible", system-ui, sans-serif; }
+  main { display:flex; flex-direction:column; gap:12px; min-height:100%; padding:12px; max-width:520px; margin:0 auto; }
+  #stage { background:#000; border-radius:10px; overflow:hidden; min-height:220px; display:grid; place-items:center; }
+  button { font:inherit; font-weight:700; font-size:1.1rem; padding:14px 22px; border:0; border-radius:8px; background:var(--text); color:var(--bg); cursor:pointer; }
+  button:focus-visible { outline:3px solid var(--warn); outline-offset:2px; }
+  #status { flex:1; min-height:190px; border-radius:10px; background:var(--panel); padding:20px; display:flex; flex-direction:column; justify-content:center; transition:background .15s; }
+  #status.ok { background:var(--ok); } #status.warn { background:var(--warn); color:#1d1500; } #status.bad { background:var(--bad); }
+  #title { font-size:2rem; font-weight:700; line-height:1.15; overflow-wrap:anywhere; }
+  #sub { margin-top:8px; font-size:1.05rem; opacity:.9; }
+  footer { display:flex; justify-content:space-between; font-size:.95rem; opacity:.85; }
+</style>
+</head>
+<body>
+<main>
+  <div id="stage"><div id="reader" style="width:100%"></div><button id="start">Start scanning</button></div>
+  <section id="status" aria-live="polite"><div id="title">Ready to scan</div><div id="sub">Tap Start, then hold an ID barcode in the box.</div></section>
+  <footer><span id="count">Scanned: 0</span><span id="queue"></span></footer>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script>
+const SCRIPT_URL = https://script.google.com/macros/s/AKfycbwsQnI4AwVLwDZmBQ0s7j6SOmIvCBv0LDFKuHFQK77v66mbeYNJ55z31GWK_--2p0A/exec;
+
+const $ = id => document.getElementById(id);
+const F = Html5QrcodeSupportedFormats;
+let key = localStorage.getItem('key');
+let queue = JSON.parse(localStorage.getItem('queue') || '[]');
+let count = 0, flushing = false, lastCode = '', lastAt = 0;
+const ac = new (window.AudioContext || window.webkitAudioContext)();
+
+function askKey() { key = prompt('Enter the scanner passcode') || ''; localStorage.setItem('key', key); }
+function saveQueue() { localStorage.setItem('queue', JSON.stringify(queue)); $('queue').textContent = queue.length ? queue.length + ' waiting to send' : ''; }
+function beep(freq) {
+  const o = ac.createOscillator(), g = ac.createGain();
+  o.frequency.value = freq; g.gain.value = 0.15; o.connect(g); g.connect(ac.destination);
+  o.start(); o.stop(ac.currentTime + 0.18);
+}
+function show(cls, title, sub, freq) {
+  $('status').className = cls; $('title').textContent = title; $('sub').textContent = sub;
+  beep(freq); if (navigator.vibrate) navigator.vibrate(cls === 'ok' ? 80 : [80, 60, 80]);
+}
+
+async function flush() {
+  if (flushing) return;
+  flushing = true;
+  while (queue.length) {
+    const item = queue[0];
+    let r;
+    try {
+      const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ ...item, key }) });
+      r = await res.json();
+    } catch (e) { $('queue').textContent = queue.length + ' waiting (offline)'; break; }
+    if (r.status === 'auth') { askKey(); continue; }
+    queue.shift(); saveQueue();
+    if (r.status === 'ok') {
+      count++; $('count').textContent = 'Scanned: ' + count;
+      r.name ? show('ok', r.name, 'ID ' + item.id + ' recorded', 880)
+             : show('warn', 'Not in roster', 'ID ' + item.id + ' recorded anyway', 440);
+    } else if (r.status === 'dup') show('warn', 'Already scanned', (r.name || 'ID ' + item.id), 440);
+    else if (r.status === 'closed') { show('bad', 'Attendance is closed', 'Ask the organizer to reopen it.', 220); queue = []; saveQueue(); }
+    else show('bad', 'Something went wrong', 'Try scanning again.', 220);
+  }
+  flushing = false;
+}
+
+function onScan(text) {
+  const id = text.trim(), now = Date.now();
+  if (id === lastCode && now - lastAt < 4000) return; // ignore the same card held in view
+  lastCode = id; lastAt = now;
+  queue.push({ id, ts: now }); saveQueue(); flush();
+}
+
+const scanner = new Html5Qrcode('reader', {
+  formatsToSupport: [F.CODE_128, F.CODE_39, F.CODE_93, F.EAN_13, F.EAN_8, F.ITF, F.UPC_A, F.CODABAR, F.QR_CODE],
+  experimentalFeatures: { useBarCodeDetectorIfSupported: true },
+  verbose: false
+});
+$('start').onclick = async () => {
+  if (!key) askKey();
+  ac.resume();
+  try {
+    await scanner.start({ facingMode: 'environment' }, { fps: 10, qrbox: { width: 290, height: 120 } }, onScan, () => {});
+    $('start').hidden = true; flush();
+  } catch (e) { show('bad', 'Camera blocked', 'Allow camera access in the browser settings, then tap Start again.', 220); }
+};
+window.addEventListener('online', flush);
+saveQueue();
+</script>
+</body>
+</html>
