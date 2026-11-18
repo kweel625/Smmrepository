@@ -1,32 +1,38 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 720" role="img" aria-label="Society of Mathematics Major logo">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 720" width="720" height="720" role="img" aria-label="Society of Mathematics Major seal">
   <defs>
-    <radialGradient id="g" cx="38%" cy="30%" r="78%">
-      <stop offset="0%" stop-color="#5cf25c"/>
-      <stop offset="55%" stop-color="#2ae32a"/>
-      <stop offset="100%" stop-color="#12c412"/>
+    <radialGradient id="seal-green" cx="42%" cy="30%" r="82%">
+      <stop offset="0" stop-color="#5cff80"/>
+      <stop offset="0.5" stop-color="#1bfb48"/>
+      <stop offset="1" stop-color="#00d92c"/>
     </radialGradient>
-    <path id="arcTop" d="M 360,360 m -276,0 a 276,276 0 1,1 552,0 a 276,276 0 1,1 -552,0"/>
+    <path id="seal-arc" d="M 67 422 A 300 300 0 0 1 653 422" fill="none"/>
   </defs>
 
-  <circle cx="360" cy="360" r="356" fill="#0b3a22"/>
-  <circle cx="360" cy="360" r="350" fill="url(#g)"/>
-  <circle cx="360" cy="360" r="340" fill="none" stroke="#0b3a22" stroke-width="5"/>
-  <circle cx="360" cy="360" r="306" fill="none" stroke="#0b3a22" stroke-width="4"/>
+  <!-- green disc -->
+  <circle cx="360" cy="360" r="352" fill="url(#seal-green)"/>
+  <!-- double black ring -->
+  <circle cx="360" cy="360" r="350" fill="none" stroke="#000" stroke-width="7"/>
+  <circle cx="360" cy="360" r="318" fill="none" stroke="#000" stroke-width="5"/>
 
-  <text font-family="Georgia, 'Times New Roman', serif" font-weight="700" font-size="52"
-        fill="#062415" letter-spacing="2">
-    <textPath href="#arcTop" startOffset="50%" text-anchor="middle"
-              textLength="1560" lengthAdjust="spacing">SOCIETY OF MATHEMATICS MAJOR</textPath>
+  <!-- curved seal text -->
+  <text font-family="'Times New Roman', Times, Georgia, serif" font-size="42" font-weight="700"
+        fill="#000" letter-spacing="1">
+    <textPath href="#seal-arc" startOffset="50%" text-anchor="middle" textLength="688" lengthAdjust="spacing">SOCIETY OF MATHEMATICS MAJOR</textPath>
   </text>
 
-  <g fill="none" stroke="#052315" stroke-width="34" stroke-linecap="round" stroke-linejoin="round">
-    <!-- central monogram -->
-    <path d="M 250 352 C 250 292 320 288 360 352 C 400 416 470 412 470 352 C 470 292 400 288 360 352 C 320 416 250 412 250 352 Z"/>
-    <path d="M 336 214 C 300 214 300 262 336 262 L 384 262"/>
-    <path d="M 384 262 L 384 470"/>
-    <path d="M 384 470 L 336 470 C 300 470 300 518 336 518"/>
-    <path d="M 236 440 L 492 440"/>
-    <path d="M 492 440 L 492 490"/>
-    <path d="M 268 400 L 452 268"/>
+  <!-- monogram -->
+  <g fill="none" stroke="#000" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"
+     transform="translate(360 412) scale(0.88) translate(-360 -360)">
+    <!-- central stem with curls (integral form) -->
+    <path d="M 436 168 C 436 128 388 118 370 152 C 363 166 362 182 362 202 L 362 486 C 362 538 342 570 312 574 C 290 577 279 559 285 536"/>
+    <!-- upper right bar with downward hook -->
+    <path d="M 382 248 L 494 248 C 518 248 526 266 519 282"/>
+    <!-- lower right bar with upward hook -->
+    <path d="M 382 460 L 494 460 C 518 460 526 442 519 426"/>
+    <!-- left wedge -->
+    <path d="M 350 236 L 222 354 L 352 472"/>
+    <!-- left and right loops -->
+    <circle cx="262" cy="354" r="84"/>
+    <circle cx="458" cy="354" r="84"/>
   </g>
 </svg>

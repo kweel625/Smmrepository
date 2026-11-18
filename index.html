@@ -202,12 +202,10 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwsQnI4AwVLwDZmBQ0s7
 
 const $ = id => document.getElementById(id);
 const F = Html5QrcodeSupportedFormats;
-let key = localStorage.getItem('key');
 let queue = JSON.parse(localStorage.getItem('queue') || '[]');
 let count = 0, flushing = false, lastCode = '', lastAt = 0;
 const ac = new (window.AudioContext || window.webkitAudioContext)();
 
-function askKey() { key = prompt('Enter the scanner passcode') || ''; localStorage.setItem('key', key); }
 function setCount() { $('count').innerHTML = '<span class="dot"></span>Scanned: <b>' + count + '</b>'; }
 function saveQueue() { localStorage.setItem('queue', JSON.stringify(queue)); $('queue').textContent = queue.length ? queue.length + ' waiting to send' : ''; }
 function beep(freq) {
@@ -228,10 +226,14 @@ async function flush() {
     const item = queue[0];
     let r;
     try {
-      const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ ...item, key }) });
+      const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(item) });
       r = await res.json();
     } catch (e) { $('queue').textContent = queue.length + ' waiting (offline)'; break; }
-    if (r.status === 'auth') { askKey(); continue; }
+    if (r.status === 'auth') {
+      queue.shift(); saveQueue();
+      show('bad', 'Not authorized', 'The attendance sheet script still wants a passcode — ask the organizer to allow this scanner.', 220);
+      continue;
+    }
     queue.shift(); saveQueue();
     if (r.status === 'ok') {
       count++; setCount();
@@ -257,7 +259,6 @@ const scanner = new Html5Qrcode('reader', {
   verbose: false
 });
 $('start').onclick = async () => {
-  if (!key) askKey();
   ac.resume();
   try {
     await scanner.start({ facingMode: 'environment' }, { fps: 10, qrbox: { width: 290, height: 120 } }, onScan, () => {});
