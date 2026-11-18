@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 720" role="img" aria-label="Society of Mathematics Major logo">
+  <defs>
+    <radialGradient id="g" cx="38%" cy="30%" r="78%">
+      <stop offset="0%" stop-color="#5cf25c"/>
+      <stop offset="55%" stop-color="#2ae32a"/>
+      <stop offset="100%" stop-color="#12c412"/>
+    </radialGradient>
+    <path id="arcTop" d="M 360,360 m -276,0 a 276,276 0 1,1 552,0 a 276,276 0 1,1 -552,0"/>
+  </defs>
+
+  <circle cx="360" cy="360" r="356" fill="#0b3a22"/>
+  <circle cx="360" cy="360" r="350" fill="url(#g)"/>
+  <circle cx="360" cy="360" r="340" fill="none" stroke="#0b3a22" stroke-width="5"/>
+  <circle cx="360" cy="360" r="306" fill="none" stroke="#0b3a22" stroke-width="4"/>
+
+  <text font-family="Georgia, 'Times New Roman', serif" font-weight="700" font-size="52"
+        fill="#062415" letter-spacing="2">
+    <textPath href="#arcTop" startOffset="50%" text-anchor="middle"
+              textLength="1560" lengthAdjust="spacing">SOCIETY OF MATHEMATICS MAJOR</textPath>
+  </text>
+
+  <g fill="none" stroke="#052315" stroke-width="34" stroke-linecap="round" stroke-linejoin="round">
+    <!-- central monogram -->
+    <path d="M 250 352 C 250 292 320 288 360 352 C 400 416 470 412 470 352 C 470 292 400 288 360 352 C 320 416 250 412 250 352 Z"/>
+    <path d="M 336 214 C 300 214 300 262 336 262 L 384 262"/>
+    <path d="M 384 262 L 384 470"/>
+    <path d="M 384 470 L 336 470 C 300 470 300 518 336 518"/>
+    <path d="M 236 440 L 492 440"/>
+    <path d="M 492 440 L 492 490"/>
+    <path d="M 268 400 L 452 268"/>
+  </g>
+</svg>
